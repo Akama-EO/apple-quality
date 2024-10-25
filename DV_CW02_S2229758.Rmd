@@ -1,0 +1,379 @@
+---
+title: "Data Visualization - Coursework 02 - 1st diet"
+author: "Emmanuel Akama (S2229758)"
+date: "April 23, 2024"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+*ATTESTATION: I confirm that the material contained within the
+submitted coursework is my own work*
+
+\
+
+# **Apple Quality Analysis**
+##### Data source: <https://www.kaggle.com/datasets/tejpal123/apple-quality-analysis-dataset>
+
+
+## 1. Project Summary
+
+\"Good apples are the crisp symphony of nature\'s sweetness, each bite a
+harmonious blend of juiciness and flavor. Bad apples, on the other
+hand, are the sour note in the orchestra, a disappointing crunch
+yielding to blandness or worse, a rot that taints the palate.\"*Anonymous.*
+
+![Apple Quality](C:/Users/emman/OneDrive - GLASGOW CALEDONIAN UNIVERSITY/Documents/GCU/Trimester B/Data Visualisation/Assessments/CW 02/Report/apple_dataset.jpg)\
+
+Apple quality is usually defined in terms of the physical and sensory characteristics that lead to increased customer satisfaction. This includes external factors like color, size and weight, as well as, internal factors such as sweetness, crunchiness, juiciness, ripeness, and acidity that are sensual and psychological in nature (Harker et.al., 2003).
+
+The objective of this report is to analyse a mock-up apple dataset to gain insights into the external and internal characteristics of apples to gain knowledge into the factors that impact on their quality. The mock-up dataset is made up of various features such as colour, size, weight, sweetness, crunchiness, juiciness, ripeness, and acidity that impact customer consumption and satisfaction of the apple fruit. These are some of the external and internal features used by customers determine to apple quality (Bejaei et.al, 2021; Bowen A. and  Grygorczyk A., 2022). 
+
+Using exploratory data analysis (EDA) and statistical analysis, we aim to understand the relationships between these features and the overall quality of apples.
+
+## 2. Introduction
+
+The report is based on the apple quality analysis of a mock-up apple dataset from
+*Kaggle*. For more information on the dataset, see
+<https://www.kaggle.com/datasets/tejpal123/apple-quality-analysis-dataset>.
+The dataset contains 4001 observations about various attributes that provide insights into the quality characteristics of an apple. It includes features such as size, weight, sweetness, crunchiness, juiciness, ripeness, acidity, and quality.
+
+The feature descriptions below explain the meaning of each apple feature in the dataset.
+
++ *Size*: The measure indicating the Size of the apple fruit
++ *Weight*: The measure indicating the Weight of the apple fruit
++ *Sweetness*: An indication of the degree of sweetness of the apple fruit
++ *Crunchiness*: The measure of texture indicating the crunchiness of the fruit
++ *Juiciness*: The level of juiciness of the fruit
++ *Ripeness*: An indication of the stage of ripeness of the fruit
++ *Acidity*: An indication of the acidity level of the fruit
++ *Quality*: An indication of the overall quality of the fruit
+
+The dataset provides a good use-case for the development of a classification model to predict the quality rating of different apple fruits using various internal ans external attributes. However, for the purpose of this report, our goal will be to visual analyse the dataset using data visualization and descriptive statistics techniques inherent in R to provide insights to understand the relationships between these features and the overall quality of apples.
+
+Based on this research objective, we will attempt to visually analyse the dataset to find answers to the following research questions.
+
+1.  *What is the overall quality of the apples?* This is relevant considering the different category of quality factor impacting on customer perception and satisfaction (Bowen A. and  Grygorczyk A., 2022).
+
+2.  *Which intrinsic feature impact on quality the most?* This is relevant to provide enhancement to improve the overall quality matrix (Bejaei et.al, 2021; Bowen A. and  Grygorczyk A., 2022). 
+
+3.  *Is there any relationship between the size and weight and quality?* This is economically relevant to improve logistics and storage infrastructure (Paama et. al., 2019).
+
+```{=html}
+<!-- -->
+```
+
+## 3. Data Preprocessing, Wrangling and Exploratory Analysis
+
+We will use the *tidyverse* package for data preprocessing wrangling and
+exploration. For these, we will focus more on data visualization and
+descriptive statistics techniques inherent in R and the *tidyverse*
+package.
+
+#### Import and Load Packages
+
+Data import is the first stage in the data processing pipeline. Hence, the first step to our data exploration will be to import and load the relevant R library packages. Particularly, we will use *tidyverse*, *ggplot2*, *ggtextrepel*, *ggforce*, and *reshape2*.
+
+```{r echo=TRUE}
+# load library packages
+library(tidyverse)
+library(reshape2)
+library(ggforce)
+```
+
+#### Data Ingestion
+
+Data importation is usually done with the relevant R library package. For our use-case, we will use the *read.csv()* function from the *readr* package.
+
+```{r echo=TRUE}
+# load the dataset
+data <- read.csv("C:/Users/emman/OneDrive - GLASGOW CALEDONIAN UNIVERSITY/Documents/GCU/Trimester B/Data Visualisation/Assessments/CW 02/Datasets/Apple_Quality.csv")
+```
+
+#### Data Preprocessing and Wrangling
+
+After loading the data, we will first preview it to see how it looks, then we will
+perform some preprocessing steps to clean up the data. This includes the removal of missing entries and duplicate records. However, we will first check that their removal wouldn't have any impact on the original distribution of the data.
+
+```{r echo=TRUE}
+# glimpse through the data
+glimpse(data)
+```
+A glimpse of the data shows that the data type of the *Acidity* was in a non-numeric format. We will fix this now by converting to numeric format to ease future processing.
+
+```{r echo=TRUE}
+# convert to numeric datatype
+data$Acidity <- as.numeric(data$Acidity)
+```
+
+Next, we will check to confirm the conversion was done. We see a warning that NAs was introduced by coercion. We will check the counts to see it's minimal.
+
+```{r echo=TRUE}
+# check the total missing values
+sum(is.na(data$Acidity))
+sum(is.na(data))
+
+# confirm data attributes
+str(data)
+```
+Since the number of missing entries is minimal (just 8 entries in all), we will remove them.
+
+```{r echo=TRUE}
+# omit missing values
+data <- na.omit(data)
+```
+
+We will again confirm that all observations with missing entries have been removed.
+
+```{r echo=TRUE}
+# check the total missing values
+sum(is.na(data))
+```
+Also, we will remove the *A_id* feature since it does not have any impact on our analysis.
+
+```{r echo=TRUE}
+# drop unused columns
+data <- data[, -which(names(data) == "A_id")]
+```
+
+Finally, we will re-check the data to confirm been preprocessed.
+
+```{r echo=TRUE}
+# check the data attributes
+str(data)
+```
+#### Data Exploration
+
+The aim of data exploration is to investigate the data to provide insights that can help with further analysis. During this investigation, we might cues about the data we want to investigate further.
+
+For the purpose of this report, we will investigate the data to seek answers to the following research questions.
+
+1.  *What is the overall quality of the apples?* This is relevant considering the different category of quality factor impacting on customer perception and satisfaction.
+
+2.  *Which intrinsic feature impact on quality the most?* This is relevant to provide enhancement to improve the overall quality matrix. 
+
+3.  *Is there any relationship between the size and weight and quality?* This is economically relevant to improve logistics and storage infrastructure.
+
+#### Data visualization
+
+In the following sections, we will explore the data using basic summary statistics and data visualization techniques. By doing so, we will attempt to find answers to the following research questions.
+
+#####	1. **What is the overall quality of the apples?**
+
+To understand the overall quality of the apple dataset, we will make a bar plot of the number of occurrences in each quality category. A broad view of the apple quality will inform further questions and analysis.
+
+```{r echo=TRUE, fig.width = 5, fig.height = 4}
+
+# select 'Quality' from the dataframe
+# then assign it to a new variable df1
+df1 <- data %>%
+  select(Quality)
+
+# make bar plot
+ggplot(df1, aes(x = factor(Quality), fill = Quality)) +
+
+# set the geom type to bar (bin width=0.5)
+geom_bar(alpha = 0.5, width=0.5) + 
+
+# extend the y-axis to 2250    
+ylim(0, 2250) +
+
+# add text annotations (using 'count')
+geom_text(stat = 'count', 
+          aes(label = after_stat(count)), 
+          vjust = -0.5, size = 3) +
+
+# add title and subtitles
+labs(
+  x = "Quality",
+  y = "Number of Occurrences",
+  fill = "Quality",
+  title = "Distribution of apple quality",
+  subtitle = "with data points from 4,000 independent observations"
+) +
+
+# change the default fill colours
+scale_fill_manual(values = c("bad" = "red", "good" = "green")) +
+  
+# change the theme
+theme_classic()
+
+# save the plot
+ggsave("C:/Users/emman/OneDrive - GLASGOW CALEDONIAN UNIVERSITY/Documents/GCU/Trimester B/Data Visualisation/Assessments/CW 01/Poster/Images/bar_plot.png", width = 5, height = 4, dpi = 600)
+```
+
+From the frequency distribution, we could see that the quality of apples
+is evenly distributed. *Bad* apples had a count of 2004 (approximately 50%), while
+*Good* apples had a count of 1996 (approximately 50%). seeing the overall quality of the apple production was not impressive, we will perform further analysis on the data to investigate the feature (or features) that had the most negative impact on quality.
+
+#####  2. **Which intrinsic feature impact on quality the most?**
+
+To understand the features of apples that have the most significant impact on quality, we will calculate the correlation between each feature and quality. Then, we will make a *heat plot* using *geom_tile()* to visualize their impact on quality.
+
+However, to proceed with this task, we will need to convert *Quality* from a character vector type into an acceptable numeric format since the *cor()* only compares numbers.
+
+```{r echo=TRUE}
+df2 <- data %>%
+  mutate(Quality = factor(Quality, ordered = TRUE)) %>%
+  mutate(Quality = as.numeric(Quality)) %>%
+  cor(. [, names(.)]) 
+```
+
+Next, we will reshape the data (currently, in long format) to wide format. This will ensure we only the two features we're comparing along with a feature indicating their correlation coefficient. Finally, for convenience, we will round the values to two decimal places.
+
+```{r echo=TRUE}
+df3 = melt(df2) 
+df3$value <- round(df3$value, digits = 2)
+```
+
+Now, we're in a position to plot the *heat map* indicating the correlation coefficient of each feature pair.
+
+```{r echo=TRUE, fig.width = 6, fig.height = 6}
+
+# make heat plot
+ggplot(df3, aes(x = Var1, y = Var2, fill = value)) +
+  
+  # set the geom type to tile (color="black")
+  geom_tile(color = "black") +
+  
+  # set the value and color of the geom text (color="black")
+  geom_text(aes(label = value), color = "white", size = 3) +
+  
+   # set the gradient fill colors
+  scale_fill_gradientn(colors = hcl.colors(20, "RdYlGn")) +
+  
+  coord_fixed() +
+  
+  # set the guide fill color and title
+  guides(fill = guide_colourbar(title = "Correlation")) +
+  
+  # add title and subtitles
+  labs(x = "", 
+       y = "", 
+       title = "Correlation coefficents of apple features",
+       subtitle = "with data points from 4,000 independent observations") +
+  
+  # change the theme (incline text on x-axis to 45 degrees)
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+  
+  # save the plot
+  ggsave("C:/Users/emman/OneDrive - GLASGOW CALEDONIAN UNIVERSITY/Documents/GCU/Trimester B/Data Visualisation/Assessments/CW 01/Poster/Images/tile_plot.png", width = 6, height = 6, dpi = 600)
+```
+
+From the *heat map*, we see clearly that the features that had the most impact on quality are *Ripeness (-0.26)*, *Juiciness (0.26)*, *Sweetness (0.25)*, and *Size (0.24)*. *Weight*, *Crunchiness*, and *Acidity* had negligible impact on *Quality*. However, we noted that *Ripeness (-0.26)* had the most negative impact on *Quality*, while *Juiciness (0.26)*, *Sweetness (0.25)*, and *Size (0.24)* had the most positive impact (in that order), even though these impacts almost certainly cannot differentiate a good apple from a bad one.
+
+
+#####  3. **Is there any relationship between the size and weight and quality?*
+
+From the heat plot analysis, we saw that *Size (0.24)* had an impact (albeit, insignificant to differentiate a good apple from a bad within the same space in the data distribution). This poses an economic risk because improper storage and logistics infrastructure can easily impact of other quality factors (*Ripeness (-0.26)*, *Juiciness (0.26)*, *Sweetness (0.25)* for instance).  
+
+Also, we noted that the correlation coefficient between the apple size and weight to quality was 0.24 and 0.0 respectively. This shows that there's wasn't a strong relationship between physical attributes, such as size and weight in relation to the quality of apples. However, to visualize this feedback separately, we will make a *scatter plot* of their observations in relation to the quality of apples.
+
+```{r echo=TRUE, fig.width = 5, fig.height = 5}
+
+# select 'Size', 'Weight' and 'Quality' from the dataframe
+# then assign it to a new variable df2
+df4 <- data %>%
+  select(Size, Weight, Quality) %>%
+  group_by(Quality) 
+
+# make scatter plot of size and weight
+ggplot(df4, 
+       aes(x = Size, y = Weight)) +
+  
+geom_point(alpha = 0.5, aes(colour = Quality)) +
+  
+# draw elliptical shapes around the cylinder groups and label them
+geom_mark_ellipse(alpha = 0.5, aes(label = Quality, group = Quality)) +
+  
+# extend the x and y axes  
+xlim(-10, 10) +
+ylim(-10, 7.5) +
+  
+# add title and subtitles
+labs(
+  x = "Size",
+  y = "Weight",
+  fill = "Quality",
+  title = "Distribution of apple quality by size and weight",
+  subtitle = "with data points from 4,000 independent observations"
+) +
+
+# change the default fill colours
+  scale_colour_manual(values = c("bad" = "red", "good" = "green")) +
+
+# change the theme
+theme_classic()
+
+# save the plot
+ggsave("C:/Users/emman/OneDrive - GLASGOW CALEDONIAN UNIVERSITY/Documents/GCU/Trimester B/Data Visualisation/Assessments/CW 01/Poster/Images/scatter_plot.png", width = 5, height = 5, dpi = 600)
+```
+
+From the observations, we see that there is an even distribution of *'bad'* and *'good'* apples within same sample space in the middle of the chart. However, to further analyse the report, we
+will make a visual inspection of this report using a *box plot* to further understand the distribution of the observations in relation to central tendencies, such as median and standard deviation.
+
+```{r echo=TRUE, fig.width = 5, fig.height = 5}
+# select 'Size', 'Weight' and 'Quality' from the dataframe
+# then assign it to a new variable df5
+df5 <- data %>%
+  select(Size, Weight, Quality) %>%
+  group_by(Quality) 
+
+# box plot of size and weight
+ggplot(df5, aes(x = Size, y = Weight, fill = factor(Quality))) +
+  geom_boxplot(alpha = 0.5) +
+  scale_fill_manual(values = c("bad" = "red", "good" = "green")) +
+
+# add title and subtitles
+labs(
+  x = "Size",
+  y = "Weight",
+  fill = "Quality",
+  title = "Distribution of apple quality by size and weight",
+  subtitle = "with data points from 4,000 independent observations"
+) +
+
+# change the default fill colors
+  scale_colour_manual(values = c("bad" = "red", "good" = "green")) +
+
+# make separate plot for each category  
+facet_grid(. ~ Quality) +
+
+# change the theme
+theme_classic()
+
+# save the plot
+ggsave("C:/Users/emman/OneDrive - GLASGOW CALEDONIAN UNIVERSITY/Documents/GCU/Trimester B/Data Visualisation/Assessments/CW 01/Poster/Images/box_plot.png", width = 5, height = 5, dpi = 600)
+```
+
+From the observations on the *box plot*, we can confirm that there was an even distribution of *'bad'* and *'good'* apples within same sample space in the middle of the chart.
+
+Again, looking the *box plot*, we saw that there's an overlap between *'bad'* and *'good'* apples. However, this time, there was a strong indication that the majority of *'bad'* could also have been *'good'* ones given their size and weigh distribution in relation to quality. Hence, we can make a fairly reasonable conclusion that the apples were tagged *'bad'* or *'good'* due to the influence of other factors unrelated to their size and weight, since these factors were mutually exclusive in relation to quality.
+
+
+## 4. Conclusion
+
+From the visual exploration of the apple dataset, the following findings were observed.
+
+-   In terms of quality, the overall distribution of *'bad'* and *'good'* apples was evenly distributed. This reveals they might be a need to improve factors that increase apple quality as this can significantly have an impact on overall customer satisfaction (Harker et.al., 2003).
+
+-   Further analysis to determine which intrinsic feature had the most impact on revealed that *none* of the features had any significantly strong correlation to the quality of apples in the distribution. Hence, the features were mutually exclusively independent on quality. This reveals that the apple is a delicate fruit (Paama et. al., 2019), hence proper steps should be taken when storing and transporting them since the margin between what qualifies as a *bad* or *good* apple is very slim.
+
+-   Looking further into distribution of the size and weights of the apples, we observed that there's no impact on the weight of the apples in relation to quality. This finding revealed that both lightweight and heavy-weight apples can either be '*bad'* or *'good'* apples. Hence, from the distribution, the weight of an apple had no indication on quality. However, looking at the size
+distribution of the apples, we observed there was slightly higher probability of bigger apples been *'good'* apples compared smaller apples in the distribution. However, there was also an overlap
+indicating that both big and small apples can be tagged *'bad'* or *'good'* quality apples. This might be economical (or otherwise) in terms of logistics and storage infrastructure (Paama et. al., 2019).
+
+## 5. References
+
+1. Harker F.R., Gunson F.A., and Jaeger S.R.(2002). The case for fruit quality: An interpretive review of consumer attitudes, and preferences for apples. Postharvest Biology and Technology 28 (2003) 333-347.
+
+
+2. Paama P., Berrettaa R., Heydara M., and García-Floresb R.(2019). The impact of inventory management on economic and environmental sustainability in the apple industry. Computers and Electronics in Agriculture 163 (2019) 104848, https://doi.org/10.1016/j.compag.2019.06.003
+
+
+3. Bejaei M., Stanich K., Cliff M.A. (2021). Modelling and Classification of Apple Textural Attributes Using Sensory, Instrumental and Compositional Analyses. *Foods*, 10, 384. https://doi.org/10.3390.
+
+
+4. Amy Bowen and Alexandra Grygorczyk (2022). Postharvest Handling (Fourth Edition),
+https://doi.org/10.1016/B978-0-12-822845-6.00017-8. 
